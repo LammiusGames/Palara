@@ -3,12 +3,14 @@
             [ring.util.http-response :refer :all]
             [schema.core :as s]))
 
-(s/defschema Pizza
+(s/defschema UserState
   {:name s/Str
    (s/optional-key :description) s/Str
-   :size (s/enum :L :M :S)
-   :origin {:country (s/enum :FI :PO)
-            :city s/Str}})
+   :location (s/enum :N :S :E :W)
+   :balance {:food (s/Long)
+             :copper (s/Long)
+             :stone (s/Long)
+             :wood (s/Long)}})
 
 (def app
   (api
