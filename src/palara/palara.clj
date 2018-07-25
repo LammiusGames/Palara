@@ -73,6 +73,27 @@
               (str "moved " destination "
               " (:state (player @game)))))))
 
+(defn trade "trades one commodity for another"
+  [player fromcomm tocomm qty]
+  (let [playerstate (:state (player @game))
+        location (:location playerstate)
+        abundance (->> harvestrates
+                       location
+                       tocomm)
+        newstate (-> @game
+                     (update-in [player :state :inventory fromcomm] - qty)
+                     (update-in [player :state :inventory tocomm] + (* abundance qty))
+                     (update-in [player :state :actions] - (actioncost :trade)))
+        enoughitems? ((complement neg?) (-> newstate player :state :inventory fromcomm))
+        enoughmoves?  ((complement neg?) (-> newstate player :state :actions))
+        overlimit? (> qty 5)]
+     (cond (false? enoughitems?) (str "don't have " qty " " fromcomm)
+           (false? enoughmoves?) "You don't have enough actions remainign to trade"
+           (true? overlimit?) "You can only trade 5 units at a time"
+        :else (do (swap! game conj newstate)
+                  (str "traded " qty  " " fromcomm " for " (* abundance qty ) " " tocomm "
+                  "
+                   (-> @game player :state))))))
 
 
 (defn init-test-game []
