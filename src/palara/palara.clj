@@ -59,12 +59,19 @@
   [player destination]
   (let [playerstate (:state (player @game))
         fromloc (:location playerstate)
-        moves (:actions playerstate)]
+        moves (:actions playerstate)
+        blessed? (luckymove?)
+        unblessedstate (-> @game
+                           (update-in [player :state] conj {:location destination})
+                           (update-in [player :state] conj {:actions (- moves (actioncost :move))}))
+        nextstate (if (luckymove?) (-> unblessedstate
+                                       (update-in [player :state] conj {:blessing 20}))
+                                   unblessedstate)]
    (cond (= fromloc destination) "Journey to nowhere"
          (< moves 2) "No time to get there"
-    :else (swap! game conj (-> @game
-                               (update-in [player :state] conj {:location destination})
-                               (update-in [player :state] conj {:actions (- moves (actioncost :move))}))))))
+    :else (do (swap! game conj nextstate)
+              (str "moved " destination "
+              " (:state (player @game)))))))
 
 
 
