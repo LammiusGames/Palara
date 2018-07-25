@@ -95,6 +95,18 @@
                   "
                    (-> @game player :state))))))
 
+(defn redeemblessing "redeems a blessing for a given commodity"
+  [player comm]
+  (let [blessedness (-> @game player :state :blessing)
+        newstate       (-> @game
+                           (update-in [player :state :inventory comm] + blessedness)
+                           (update-in [player :state :blessing] - blessedness))]
+    (if (< 0 blessedness)
+      (do (swap! game conj (-> @game
+                            (update-in [player :state :inventory comm] + blessedness)
+                            (update-in [player :state :blessing] - blessedness)))
+         (str "Redeemed " blessedness " " comm "
+         " (-> @game player :state))))))
 
 (defn init-test-game []
   (def game (atom {}))
