@@ -53,8 +53,13 @@
   (reset-moves :franklin 2)
   (is (= "don't have 5 :food" (trade :franklin :food :wood 5))"cannot trade more than we have"))
 
-
-
+(deftest redeem-blessing-test
+  (reset-test-state)
+  (swap! game conj (update-in @game [:franklin :state] conj {:blessing 20}))
+  (is (= 20 (-> @game :franklin :state :blessing))"blessing exists")
+  (redeemblessing :franklin :food)
+  (is (= 20 (-> @game :franklin :state :inventory :food)) "claimed commodity increases")
+  (is (= 0 (-> @game :franklin :state :blessing)) "blessing qty gone"))
 
 
 
