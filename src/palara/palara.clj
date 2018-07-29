@@ -9,7 +9,7 @@
 
 (defn rolldie [n]
   (inc (rand-int n)))
-
+(defn randomloc [] (first (shuffle [:north :south :east :west])))
 (defn luckymove? [] (= 20 (rolldie 20)))
 
 (defn actioncost [action]
@@ -17,7 +17,7 @@
    :else 1))
 
 (defn addplayer [username]
- (let [init-user { (keyword username) { :state {:inventory {:stone 0, :copper 0, :food 0, :wood 0,} :actions 2 :location :north}}}]
+ (let [init-user { (keyword username) { :state {:inventory {:stone 0, :copper 0, :food 0, :wood 0,} :actions 2 :location (randomloc)}}}]
    (swap! game conj init-user)))
 
 (defn reset-moves
@@ -33,8 +33,12 @@
    (doall (map #(reset-moves % 2) players))
    @game))
 
+(defn adjust-inv "given a player, commodity and amount changes players inventory"
+  [player comm qty]
+  (update-in [player :state :inventory comm] + qty))
+
 (defn harvest
-   "updates games tate to give the specified player a random
+   "updates games state to give the specified player a random
     dice roll of the comodity harvested"
   [player commodity]
   (let [playerstate (:state (player @game))
@@ -106,7 +110,8 @@
                             (update-in [player :state :inventory comm] + blessedness)
                             (update-in [player :state :blessing] - blessedness)))
          (str "Redeemed " blessedness " " comm "
-         " (-> @game player :state))))))
+         " (-> @game player :state)))
+      "You are unblessed, collect nothing!")))
 
 (defn init-test-game []
   (def game (atom {}))
