@@ -33,10 +33,6 @@
    (doall (map #(reset-moves % 2) players))
    @game))
 
-(defn adjust-inv "given a player, commodity and amount changes players inventory"
-  [player comm qty]
-  (update-in [player :state :inventory comm] + qty))
-
 (defn harvest
    "updates games state to give the specified player a random
     dice roll of the comodity harvested"
